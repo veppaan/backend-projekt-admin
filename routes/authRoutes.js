@@ -40,13 +40,25 @@ router.post("/register", async(req, res) => {
         res.status(201).json({ message: "User created!" });
 
     }catch(error){
-        res.status(500).json({ error: "Server error" + error });
+        res.status(500).json({ error: "Server error: " + error });
     }
 })
 
 //Login user
 router.post("/login", async(req, res) => {
-    console.log("Login user test")
+    try{
+        const { username, password } = req.body;
+
+        if(!username || !password){
+            return res.status(400).json({ error: "Username and password is required" });
+        }
+
+        //Check credentials
+        
+
+    } catch(error) {
+        res.status(500).json({ error: "Server error: " + error})
+    }
 })
 
 //Export to call
