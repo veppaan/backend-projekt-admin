@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 //Connect to database
@@ -54,22 +55,22 @@ router.post("/register", async(req, res) => {
             if(row){
                 return res.status(400).json({ message: "Username already exists, choose another one"})
             }
-        });
 
         //Correct inputs - save new error
         const sql = `INSERT INTO admin(firstname, lastname, jobtitle, username, password) VALUES(?, ?, ?, ?, ?)`;
         db.run(sql, [firstname, lastname, jobtitle, username, hashedPassword], (err) => {
             if(err) {
-                res.status(500).json({message: "Error creating admin"})
+                return res.status(500).json({message: "Error creating admin"})
             } else {
-                res.status(201).json({ message: "Admin created!" });
+                return res.status(201).json({ message: "Admin created!" });
             }
         })
+    });
 
         
 
     }catch(error){
-        res.status(500).json({ error: "Server error: " + error });
+        return res.status(500).json({ error: "Server error: " + error });
     }
 })
 
@@ -97,8 +98,15 @@ router.post("/login", async(req, res) => {
                 if(!correctPassword){
                     res.status(401).json({ message: "Incorrect username/password" });
                 } else {
+                    //Create JWT
+                    const payload = { username: username };
+                    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '3h' });
+                    const response = {
+                        message: "Correct login, welcome!",
+                        token: token
+                    }
                     //Matched password
-                    res.status(200).json({ message: "Correct login, welcome!" });
+                    res.status(200).json({ response });
                 }
             }
         })
