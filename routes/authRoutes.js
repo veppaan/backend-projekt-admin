@@ -103,6 +103,7 @@ router.post("/login", async(req, res) => {
                     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
                     const response = {
                         message: "Correct login, welcome!",
+                        user: username,
                         token: token
                     }
                     //Matched password
