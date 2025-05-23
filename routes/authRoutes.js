@@ -1,7 +1,12 @@
-//Routes for auth
+require("dotenv").config();
 const express = require("express");
 const router = express.Router();
+const sqlite3 = require("sqlite3").verbose();
 
+//Connect to database
+const db = new sqlite3.Database(process.env.DATABASE);
+
+//Routes
 
 //Add new user
 router.post("/register", async(req, res) => {
@@ -36,8 +41,27 @@ router.post("/register", async(req, res) => {
             return res.status(400).json({ errors });
         }
 
+        //Check if username already exists
+        db.get("SELECT username FROM admin WHERE username = ?", [username], (error, row) => {
+            if(error){
+                return res.status(500).json({ error: "Error with query in database" });
+            }
+            if(row){
+                return res.status(400).json({ message: "Username already exists, choose another one"})
+            }
+        });
+
         //Correct inputs - save new error
-        res.status(201).json({ message: "User created!" });
+        const sql = `INSERT INTO admin(firstname, lastname, jobtitle, username, password) VALUES(?, ?, ?, ?, ?)`;
+        db.run(sql, [firstname, lastname, jobtitle, username, password], (err) => {
+            if(err) {
+                res.status(500).json({message: "Error creating admin"})
+            } else {
+                res.status(201).json({ message: "Admin created!" });
+            }
+        })
+
+        
 
     }catch(error){
         res.status(500).json({ error: "Server error: " + error });
