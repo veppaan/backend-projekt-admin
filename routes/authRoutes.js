@@ -46,8 +46,9 @@ router.post("/register", async(req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         //Check if username already exists
-        db.get("SELECT username FROM admin WHERE username = ?", [username], (error, row) => {
-            if(error){
+        const sqlOne = "SELECT username FROM admin WHERE username = ?";
+        db.get(sqlOne, [username], (err, row) => {
+            if(err){
                 return res.status(500).json({ error: "Error with query in database" });
             }
             if(row){
@@ -82,7 +83,25 @@ router.post("/login", async(req, res) => {
         }
 
         //Check credentials
-        
+        //Does user exist?
+        const sql = `SELECT * FROM admin WHERE username = ?`;
+        db.get(sql, [username], async(err, row) => {
+            if(err){
+                return res.status(400).json({ message: "Error authenticating" });
+            }else if(!row){
+                res.status(401).json({ message: "Incorrect username/password" });
+            } else {
+                //Existing user - check matching username/password
+                const correctPassword = await bcrypt.compare(password, row.password);
+
+                if(!correctPassword){
+                    res.status(401).json({ message: "Incorrect username/password" });
+                } else {
+                    //Matched password
+                    res.status(200).json({ message: "Correct login, welcome!" });
+                }
+            }
+        })
 
     } catch(error) {
         res.status(500).json({ error: "Server error: " + error})
