@@ -11,6 +11,12 @@ router.post("/register", async(req, res) => {
         let errors = [];
 
         //Validate input
+
+        //Check if username or password i empty
+        if(!username || !password){
+            return res.status(400).json({ error: "Username and password is required" });
+        }
+
         if(username.length < 7){
             errors.push("Too short username");
         }
@@ -26,14 +32,15 @@ router.post("/register", async(req, res) => {
         if(!/[0-9]/.test(password)){
             errors.push("Password must contain digits");
         }
-        if(errors !== 0){
-            return errors;
-        }else {
-
+        if(errors.length > 0){
+            return res.status(400).json({ errors });
         }
 
+        //Correct inputs - save new error
+        res.status(201).json({ message: "User created!" });
+
     }catch(error){
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Server error" + error });
     }
 })
 
