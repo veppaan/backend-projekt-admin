@@ -100,7 +100,7 @@ router.post("/login", async(req, res) => {
                 } else {
                     //Create JWT
                     const payload = { username: username };
-                    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '3h' });
+                    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
                     const response = {
                         message: "Correct login, welcome!",
                         token: token
