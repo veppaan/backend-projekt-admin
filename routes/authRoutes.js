@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
+const bcrypt = require("bcrypt");
 
 //Connect to database
 const db = new sqlite3.Database(process.env.DATABASE);
@@ -41,6 +42,9 @@ router.post("/register", async(req, res) => {
             return res.status(400).json({ errors });
         }
 
+        //Hash password with salt 10
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
         //Check if username already exists
         db.get("SELECT username FROM admin WHERE username = ?", [username], (error, row) => {
             if(error){
@@ -53,7 +57,7 @@ router.post("/register", async(req, res) => {
 
         //Correct inputs - save new error
         const sql = `INSERT INTO admin(firstname, lastname, jobtitle, username, password) VALUES(?, ?, ?, ?, ?)`;
-        db.run(sql, [firstname, lastname, jobtitle, username, password], (err) => {
+        db.run(sql, [firstname, lastname, jobtitle, username, hashedPassword], (err) => {
             if(err) {
                 res.status(500).json({message: "Error creating admin"})
             } else {
