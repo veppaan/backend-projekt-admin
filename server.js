@@ -19,6 +19,10 @@ app.get("/admin/secret", authenticateToken, (req, res) => {
     res.json({ message: "Skyddad route" });
 })
 
+app.get("/", (req, res) => {
+    res.json({message: "Admin för Voff-truck:en"});
+})
+
 //Token-validator as middleware
 function authenticateToken(req, res, next){
     const authHeader = req.headers['authorization'];
