@@ -80,7 +80,7 @@ router.post("/login", async(req, res) => {
         const { username, password } = req.body;
 
         if(!username || !password){
-            return res.status(400).json({ error: "Username and password is required" });
+            return res.status(400).json({ message: "Username and password is required" });
         }
 
         //Check credentials
